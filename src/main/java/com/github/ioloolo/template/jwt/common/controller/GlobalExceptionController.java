@@ -1,30 +1,32 @@
 package com.github.ioloolo.template.jwt.common.controller;
 
-import java.util.Objects;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.github.ioloolo.template.jwt.common.constant.Error;
-import com.github.ioloolo.template.jwt.common.payload.response.ErrorResponse;
-import com.github.ioloolo.template.jwt.common.payload.response.ValidateErrorResponse;
+import lombok.Data;
 
 @ControllerAdvice
 public class GlobalExceptionController {
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<? extends ErrorResponse> handleException(Exception e) {
-		if (e instanceof Errors) {
-			return ResponseEntity.badRequest()
-					.body(new ValidateErrorResponse(Objects.requireNonNull(((Errors) e).getFieldError())));
+	public ResponseEntity<?> handleException(Exception e) {
+		if (e instanceof Errors err && err.getFieldError() != null) {
+			FieldError fieldError = err.getFieldErrors().get(0);
+			e = new Exception(fieldError.getField() + "은/는 " + fieldError.getDefaultMessage());
 		}
 
-		return Error.fromClass(e.getClass())
-				.map(error -> ResponseEntity.internalServerError()
-						.body(new ErrorResponse(error)))
-				.orElseGet(() -> ResponseEntity.internalServerError()
-						.body(new ErrorResponse(e.getMessage())));
+		return ResponseEntity.internalServerError().body(new ErrorResponse(e));
+	}
+
+	@Data
+	public static class ErrorResponse {
+		private final String error;
+
+		public ErrorResponse(Throwable e) {
+			this.error = e.getMessage();
+		}
 	}
 }
