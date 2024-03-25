@@ -9,8 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.github.ioloolo.template.jwt_auth.common.ExceptionFactory;
-import com.github.ioloolo.template.jwt_auth.common.security.util.JwtUtil;
+import com.github.ioloolo.template.jwt_auth.common.security.JwtUtil;
 import com.github.ioloolo.template.jwt_auth.domain.auth.data.Role;
 import com.github.ioloolo.template.jwt_auth.domain.auth.data.User;
 import com.github.ioloolo.template.jwt_auth.domain.auth.repository.RoleRepository;
@@ -30,11 +29,8 @@ public class AuthService {
 	private final PasswordEncoder encoder;
 	private final JwtUtil jwtUtil;
 
-	private final ExceptionFactory exceptionFactory;
-
 	public String login(String username, String password) {
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
-			password);
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 		Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -45,11 +41,11 @@ public class AuthService {
 	public void register(String username, String email, String password) throws Exception {
 
 		if (userRepository.existsByUsername(username)) {
-			throw exceptionFactory.of(ExceptionFactory.Type.ALREADY_EXIST_USERNAME);
+			throw new Exception("해당 아이디로 가입된 계정이 존재합니다.");
 		}
 
 		if (userRepository.existsByEmail(email)) {
-			throw exceptionFactory.of(ExceptionFactory.Type.ALREADY_EXIST_EMAIL);
+			throw new Exception("해당 메일로 가입된 계정이 존재합니다.");
 		}
 
 		Role userRole = roleRepository.findByName(Role.Roles.ROLE_USER).orElseThrow();

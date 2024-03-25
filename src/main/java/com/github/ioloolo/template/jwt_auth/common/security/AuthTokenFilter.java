@@ -12,7 +12,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.github.ioloolo.template.jwt_auth.common.security.impl.UserDetailsServiceImpl;
-import com.github.ioloolo.template.jwt_auth.common.security.util.JwtUtil;
 
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.Filter;

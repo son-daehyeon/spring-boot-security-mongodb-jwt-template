@@ -1,12 +1,18 @@
 package com.github.ioloolo.template.jwt_auth.domain.auth.controller.payload.response;
 
-import java.util.Map;
+import com.github.ioloolo.template.jwt_auth.common.payload.response.Response;
 
-import com.github.ioloolo.template.jwt_auth.common.payload.response.KVResponse;
+import lombok.Data;
 
-public class TokenResponse extends KVResponse {
+public class TokenResponse extends Response<TokenResponse.TokenDto> {
 
 	public TokenResponse(String token) {
-		super(Map.of("token", "Bearer " + token));
+		super(TokenDto.of("Bearer " + token));
+	}
+
+	@Data(staticConstructor = "of")
+	public static class TokenDto {
+
+		private final String token;
 	}
 }

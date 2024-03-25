@@ -1,4 +1,4 @@
-package com.github.ioloolo.template.jwt_auth.common.security.util;
+package com.github.ioloolo.template.jwt_auth.common.security;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
