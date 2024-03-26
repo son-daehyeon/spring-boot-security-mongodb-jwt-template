@@ -35,7 +35,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		String token = StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ") ? headerAuth.substring(7) : null;
 
 		if (jwtUtil.validate(token)) {
-			String username = jwtUtil.extract(token);
+			String username = jwtUtil.getUsernameFromAccessToken(token);
 
 			UserDetails userDetails = innerUserService.loadUserByUsername(username);
 			AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
