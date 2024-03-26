@@ -4,7 +4,6 @@ import java.io.Serial;
 import java.util.Collection;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,7 +43,6 @@ public class User implements UserDetails {
 	@Size(max = 120)
 	private String password;
 
-	@DBRef
 	@Singular
 	private Collection<Role> authorities;
 
