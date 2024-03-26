@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
 
-	private final JwtUtil          jwtUtil;
+	private final JwtUtil jwtUtil;
 	private final InnerUserService innerUserService;
 	private final UserRepository repository;
 
