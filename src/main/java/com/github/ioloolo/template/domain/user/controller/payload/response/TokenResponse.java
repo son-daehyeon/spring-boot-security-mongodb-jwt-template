@@ -6,13 +6,18 @@ import lombok.Data;
 
 public class TokenResponse extends Response<TokenResponse.TokenDto> {
 
-	public TokenResponse(String token) {
-		super(TokenDto.of("Bearer " + token));
+	public TokenResponse(String accessToken, String refreshToken) {
+		super(TokenDto.of(accessToken, refreshToken));
+	}
+
+	public TokenResponse(TokenDto tokenDto) {
+		super(TokenDto.of(tokenDto.getAccessToken(), tokenDto.getRefreshToken()));
 	}
 
 	@Data(staticConstructor = "of")
 	public static class TokenDto {
 
-		private final String token;
+		private final String accessToken;
+		private final String refreshToken;
 	}
 }

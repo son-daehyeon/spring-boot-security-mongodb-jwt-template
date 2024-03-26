@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.github.ioloolo.template.common.security.JwtUtil;
+import com.github.ioloolo.template.domain.user.controller.payload.response.TokenResponse;
 import com.github.ioloolo.template.domain.user.entity.User;
 import com.github.ioloolo.template.domain.user.repository.UserRepository;
 
@@ -23,13 +24,16 @@ public class UserService {
 	private final PasswordEncoder encoder;
 	private final JwtUtil jwtUtil;
 
-	public String login(String username, String password) {
+	public TokenResponse.TokenDto login(String username, String password) {
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 		Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		return jwtUtil.from(authentication);
+		String accessToken = jwtUtil.generateAccessToken(authentication);
+		String refreshToken = jwtUtil.generateRefreshToken(authentication);
+
+		return TokenResponse.TokenDto.of(accessToken, refreshToken);
 	}
 
 	public void register(String username, String email, String password) throws Exception {
