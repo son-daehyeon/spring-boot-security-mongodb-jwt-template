@@ -23,13 +23,16 @@ public class RedisConfig {
 
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
+
 		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
 		config.setPassword(password);
+
 		return new LettuceConnectionFactory(config);
 	}
 
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate() {
+
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setValueSerializer(new StringRedisSerializer());

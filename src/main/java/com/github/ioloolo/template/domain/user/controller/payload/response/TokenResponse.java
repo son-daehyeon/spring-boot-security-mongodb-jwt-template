@@ -6,11 +6,8 @@ import lombok.Data;
 
 public class TokenResponse extends Response<TokenResponse.TokenDto> {
 
-	public TokenResponse(String accessToken, String refreshToken) {
-		super(TokenDto.of(accessToken, refreshToken));
-	}
-
 	public TokenResponse(TokenDto tokenDto) {
+
 		super(TokenDto.of(tokenDto.getAccessToken(), tokenDto.getRefreshToken()));
 	}
 

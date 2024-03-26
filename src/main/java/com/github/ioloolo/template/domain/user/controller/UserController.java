@@ -26,6 +26,7 @@ public class UserController {
 	@PostMapping
 	@PreAuthorize("isAnonymous()")
 	public ResponseEntity<TokenResponse> login(@Validated @RequestBody LoginRequest loginRequest) {
+
 		String username = loginRequest.getUsername();
 		String password = loginRequest.getPassword();
 

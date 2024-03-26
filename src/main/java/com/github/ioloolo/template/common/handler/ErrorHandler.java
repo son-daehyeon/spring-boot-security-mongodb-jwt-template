@@ -11,6 +11,7 @@ public class ErrorHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleException(Exception e) {
+
 		return ResponseEntity.internalServerError().body(new ErrorResponse(e));
 	}
 }

@@ -21,6 +21,6 @@ public class InnerUserService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
 		return userRepository.findByUsername(username)
-			.orElseThrow(() -> new UsernameNotFoundException("가입되어 있지 않은 유저입니다."));
+				.orElseThrow(() -> new UsernameNotFoundException("가입되어 있지 않은 유저입니다."));
 	}
 }
