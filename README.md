@@ -69,6 +69,7 @@ app:
 
 ## 인증 및 인가
 API 요청 시 `accessToken`은 `Request Header`의 `Authorization`에 "Bearer (Token)" 저장하고, `refreshToken`은 `Request Cookie`의 `refresh_token`에 저장하여주세요.
+
 만약 응답이 왔을 때 `accessToken`이 만료되었다면, 다음과 같이 Response Header에 새로운 `accessToken`과 `refreshToken`이 전송됩니다.
 - `App-Reissue-Token: 1`
 - `App-New-Access-Token`: 새로운 `accessToken`
