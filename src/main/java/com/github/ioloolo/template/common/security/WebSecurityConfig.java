@@ -22,9 +22,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-	private final AuthTokenFilter      authTokenFilter;
+	private final AuthTokenFilter authTokenFilter;
 	private final AuthExceptionHandler exceptionHandler;
-	private final InnerUserService     innerUserService;
+	private final InnerUserService innerUserService;
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {
