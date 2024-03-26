@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -17,26 +18,45 @@ public class JwtUtil {
 
 	private final Algorithm algorithm;
 
-	@Value("${app.jwt.expirationDay}")
-	private long expirationDay;
+	private final RedisTemplate<String, String> redisTemplate;
 
-	public JwtUtil(@Value("${app.jwt.secret}") String secretKey) {
+	@Value("${app.security.access-token-expirations-hour}")
+	private long accessTokenExpirationsHour;
+
+	@Value("${app.security.refresh-token-expirations-hour}")
+	private long refreshTokenExpirationsHour;
+
+	public JwtUtil(@Value("${app.security.jwt-secret-key}") String secretKey, RedisTemplate<String, String> redisTemplate) {
 		this.algorithm = Algorithm.HMAC256(secretKey);
+		this.redisTemplate = redisTemplate;
 	}
 
-	public String from(Authentication authentication) {
+	public String generateAccessToken(Authentication authentication) {
 
 		User userPrincipal = (User) authentication.getPrincipal();
 
 		return JWT.create()
-			.withSubject("authentication")
 			.withIssuedAt(Instant.now())
-			.withExpiresAt(Instant.now().plus(expirationDay, TimeUnit.DAYS.toChronoUnit()))
+			.withExpiresAt(Instant.now().plus(accessTokenExpirationsHour, TimeUnit.HOURS.toChronoUnit()))
 			.withClaim("username", userPrincipal.getUsername())
 			.sign(algorithm);
 	}
 
-	public String extract(String token) {
+	public String generateRefreshToken(Authentication authentication) {
+
+		User userPrincipal = (User) authentication.getPrincipal();
+
+		String token = JWT.create()
+				.withIssuedAt(Instant.now())
+				.withExpiresAt(Instant.now().plus(refreshTokenExpirationsHour, TimeUnit.HOURS.toChronoUnit()))
+				.sign(algorithm);
+
+		redisTemplate.opsForValue().set(userPrincipal.getId(), token, refreshTokenExpirationsHour, TimeUnit.HOURS);
+
+		return token;
+	}
+
+	public String getUsernameFromAccessToken(String token) {
 
 		return JWT.require(algorithm)
 			.build()
@@ -50,10 +70,7 @@ public class JwtUtil {
 		if (token == null) return false;
 
 		try {
-			JWT.require(algorithm)
-				.withSubject("authentication")
-				.build()
-				.verify(token);
+			JWT.require(algorithm).build().verify(token);
 
 			return true;
 		} catch (JWTVerificationException e) {

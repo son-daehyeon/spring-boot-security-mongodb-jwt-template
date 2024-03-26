@@ -29,9 +29,9 @@ public class UserController {
 		String username = loginRequest.getUsername();
 		String password = loginRequest.getPassword();
 
-		String jwtToken = service.login(username, password);
+		TokenResponse.TokenDto tokenDto = service.login(username, password);
 
-		return ResponseEntity.ok(new TokenResponse(jwtToken));
+		return ResponseEntity.ok(new TokenResponse(tokenDto));
 	}
 
 	@PutMapping
