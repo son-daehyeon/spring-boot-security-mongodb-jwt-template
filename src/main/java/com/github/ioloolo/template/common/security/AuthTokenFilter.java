@@ -70,8 +70,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				.filter(x -> x.getName().equals("refresh_token"))
 				.findAny();
 
-		System.out.println("REISSUE");
-
 		if (refreshTokenOptional.isEmpty()) return;
 
 		String refreshToken = refreshTokenOptional.get().getValue();
