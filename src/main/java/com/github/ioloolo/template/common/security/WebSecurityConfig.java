@@ -2,6 +2,7 @@ package com.github.ioloolo.template.common.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -58,7 +59,15 @@ public class WebSecurityConfig {
 			.addFilterBefore(authTokenFilter.getFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authenticationProvider(authenticationProvider())
 
-			.authorizeHttpRequests(request -> request.anyRequest().permitAll())
+			.authorizeHttpRequests(request -> {
+				request.requestMatchers(HttpMethod.POST, "/api/user").anonymous();
+				request.requestMatchers(HttpMethod.PUT, "/api/user").anonymous();
+
+				request.requestMatchers("/api/test/all").permitAll();
+				request.requestMatchers("/api/test/admin").hasAnyRole("ADMIN");
+
+				request.anyRequest().authenticated();
+			})
 
 			.build();
 	}
