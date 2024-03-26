@@ -20,9 +20,23 @@
 프로젝트를 사용하기 전에 `src/resources/application_template.yaml` 파일을 복사하여 `src/resources/application.yaml`로 변경해야 합니다. 그리고 아래의 내용을 수정합니다.
 ```yaml  
 spring:  
- data: mongodb: host: localhost port: 27017 username: (username) password: (password) database: (database) authentication-database: admin redis: host: localhost port: 6379 password: (password)  
+ data: 
+  mongodb:
+    host: localhost
+    port: 27017
+    username: (username)
+    password: (password)
+    database: (database)
+    authentication-database: admin
+  redis:
+    host: localhost
+    port: 6379
+    password: (password)  
 app:  
- security: jwt-secret-key: (jwt_secret) access-token-expirations-hour: 4 refresh-token-expirations-hour: 168  
+ security:
+  jwt-secret-key: (jwt_secret) 
+  access-token-expirations-hour: 4
+  refresh-token-expirations-hour: 168  
 ```  
 괄호 안의 내용을 해당하는 값으로 변경해야 합니다.
 
