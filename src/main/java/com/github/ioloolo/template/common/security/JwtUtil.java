@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.github.ioloolo.template.domain.user.entity.User;
 
 @Component
@@ -51,7 +52,7 @@ public class JwtUtil {
 				.withExpiresAt(Instant.now().plus(refreshTokenExpirationsHour, TimeUnit.HOURS.toChronoUnit()))
 				.sign(algorithm);
 
-		redisTemplate.opsForValue().set(userPrincipal.getId(), token, refreshTokenExpirationsHour, TimeUnit.HOURS);
+		redisTemplate.opsForValue().set(token, userPrincipal.getId(), refreshTokenExpirationsHour, TimeUnit.HOURS);
 
 		return token;
 	}
@@ -65,7 +66,7 @@ public class JwtUtil {
 			.asString();
 	}
 
-	public boolean validate(String token) {
+	public boolean validate(String token) throws TokenExpiredException {
 
 		if (token == null) return false;
 
@@ -73,6 +74,8 @@ public class JwtUtil {
 			JWT.require(algorithm).build().verify(token);
 
 			return true;
+		} catch (TokenExpiredException e) {
+			throw e;
 		} catch (JWTVerificationException e) {
 			return false;
 		}
