@@ -7,12 +7,12 @@
 
 ## 프로젝트 기술 스택
 
-- Spring Boot (version 3.2.4)
-- Spring Web
-- Spring Security
-- MongoDB
-- Redis
-- JWT
+<img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white">
+<img src="https://img.shields.io/badge/Spring_Boot_(v.%203.2.4)-F2F4F9?style=for-the-badge&logo=spring-boot">
+<img src="https://img.shields.io/badge/Spring_Security-F2F4F9?style=for-the-badge&logo=springsecurity">
+<img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white">
+<img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white">
+<img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white">
 
 ## 프로젝트 설정
 
@@ -40,6 +40,14 @@ app:
 ```  
 괄호 안의 내용을 해당하는 값으로 변경해야 합니다.
 
+## 인증 및 인가
+API 요청 시 `accessToken`은 `Request Header`의 `Authorization`에 "Bearer (Token)" 저장하고, `refreshToken`은 `Request Cookie`의 `refresh_token`에 저장하여주세요.
+
+만약 응답이 왔을 때 `accessToken`이 만료되었다면, 다음과 같이 Response Header에 새로운 `accessToken`과 `refreshToken`이 전송됩니다.
+- `App-Reissue-Token: 1`
+- `App-New-Access-Token`: 새로운 `accessToken`
+- `App-New-Refresh-Token`: 새로운 `refreshToken`
+
 ## API 명세서
 
 ### 로그인
@@ -66,11 +74,3 @@ app:
   }  
   ```  
 - **Response Body:** 정상적으로 회원가입되면 별도의 응답 바디는 없습니다.
-
-## 인증 및 인가
-API 요청 시 `accessToken`은 `Request Header`의 `Authorization`에 "Bearer (Token)" 저장하고, `refreshToken`은 `Request Cookie`의 `refresh_token`에 저장하여주세요.
-
-만약 응답이 왔을 때 `accessToken`이 만료되었다면, 다음과 같이 Response Header에 새로운 `accessToken`과 `refreshToken`이 전송됩니다.
-- `App-Reissue-Token: 1`
-- `App-New-Access-Token`: 새로운 `accessToken`
-- `App-New-Refresh-Token`: 새로운 `refreshToken`
