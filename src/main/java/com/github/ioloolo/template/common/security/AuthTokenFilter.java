@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -47,16 +48,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		try {
 			if (jwtUtil.validate(accessToken)) {
 				String username = jwtUtil.getUsernameFromAccessToken(accessToken);
-
-				UserDetails userDetails = innerUserService.loadUserByUsername(username);
-				AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-						userDetails,
-						null,
-						userDetails.getAuthorities()
-				);
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+				verifyAndSaveAuthentication(request, username);
 			}
 		} catch (TokenExpiredException e) {
 			reissueToken(request, response);
@@ -66,6 +58,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	}
 
 	private void reissueToken(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) {
+
 		Optional<Cookie> refreshTokenOptional = Arrays.stream(request.getCookies())
 				.filter(x -> x.getName().equals("refresh_token"))
 				.findAny();
@@ -79,22 +72,26 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 		User user = repository.findById(userId).orElseThrow();
 
-		UserDetails userDetails = innerUserService.loadUserByUsername(user.getUsername());
-		AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-				userDetails,
-				null,
-				userDetails.getAuthorities()
-		);
-		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		Authentication authentication = verifyAndSaveAuthentication(request, user.getUsername());
 
 		response.addHeader("App-Reissue-Token", "1");
 		response.addHeader("App-New-Access-Token", jwtUtil.generateAccessToken(authentication));
 		response.addHeader("App-New-Refresh-Token", jwtUtil.generateRefreshToken(authentication));
+	}
+
+	private Authentication verifyAndSaveAuthentication(@Nonnull HttpServletRequest request, String username) {
+
+		UserDetails userDetails = innerUserService.loadUserByUsername(username);
+		AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		return authentication;
 	}
 
 	public Filter getFilter() {
+
 		return this;
 	}
 }

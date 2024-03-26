@@ -9,11 +9,13 @@ public class Response<T> {
 	private final T content;
 
 	public Response(T content) {
+
 		this.isError = false;
 		this.content = content;
 	}
 
 	public Response(boolean isError, T content) {
+
 		this.isError = isError;
 		this.content = content;
 	}

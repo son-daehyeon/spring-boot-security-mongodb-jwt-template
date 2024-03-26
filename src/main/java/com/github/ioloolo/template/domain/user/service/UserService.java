@@ -25,6 +25,7 @@ public class UserService {
 	private final JwtUtil jwtUtil;
 
 	public TokenResponse.TokenDto login(String username, String password) {
+
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 		Authentication authentication = authenticationManager.authenticate(authenticationToken);
 

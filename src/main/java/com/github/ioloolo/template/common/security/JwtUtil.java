@@ -17,17 +17,17 @@ import com.github.ioloolo.template.domain.user.entity.User;
 @Component
 public class JwtUtil {
 
-	private final Algorithm algorithm;
-
-	private final RedisTemplate<String, String> redisTemplate;
-
 	@Value("${app.security.access-token-expirations-hour}")
 	private long accessTokenExpirationsHour;
 
 	@Value("${app.security.refresh-token-expirations-hour}")
 	private long refreshTokenExpirationsHour;
 
+	private final Algorithm algorithm;
+	private final RedisTemplate<String, String> redisTemplate;
+
 	public JwtUtil(@Value("${app.security.jwt-secret-key}") String secretKey, RedisTemplate<String, String> redisTemplate) {
+
 		this.algorithm = Algorithm.HMAC256(secretKey);
 		this.redisTemplate = redisTemplate;
 	}

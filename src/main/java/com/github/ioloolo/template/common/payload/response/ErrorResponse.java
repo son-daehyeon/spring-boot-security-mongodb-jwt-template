@@ -14,6 +14,7 @@ public class ErrorResponse extends Response<ErrorResponse.ErrorDto> {
 		private final String message;
 
 		public static ErrorDto of(Exception e) {
+
 			return ErrorDto.of(e.getMessage());
 		}
 	}
