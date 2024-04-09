@@ -1,7 +1,6 @@
 package com.github.ioloolo.template.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,7 +23,6 @@ public class UserController {
 	private final UserService service;
 
 	@PostMapping
-	@PreAuthorize("isAnonymous()")
 	public ResponseEntity<TokenResponse> login(@Validated @RequestBody LoginRequest loginRequest) {
 
 		String username = loginRequest.getUsername();
@@ -36,7 +34,6 @@ public class UserController {
 	}
 
 	@PutMapping
-	@PreAuthorize("isAnonymous()")
 	public ResponseEntity<Void> register(@Validated @RequestBody RegisterRequest signUpRequest) throws Exception {
 
 		String username = signUpRequest.getUsername();
