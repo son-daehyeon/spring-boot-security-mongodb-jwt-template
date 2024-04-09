@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
   baseURL: 'http://127.0.0.1:8080',
   timeout: 4000,
   headers: {
-    'Authorization': ""
+    'Authorization': `Bearer ${Cookies.get('access_token')}`
   }
 });
 
@@ -17,24 +17,19 @@ const axiosProxy = new Proxy(axiosInstance, {
 
     if (PROXY_METHOD.includes(property)) {
       return async function (...args) {
-        try {
-          return await method.apply(this, args);
-        } catch (e) {
-          if (axios.isAxiosError(e)) {
-            if (e.response.headers['App-Reissue-Token'] === 1) {
-              const accessToken = e.response.headers['App-New-Access-Token'];
-              const refreshToken = e.response.headers['App-New-Refresh-Token'];
+        const result = await method.apply(this, args);
 
-              axiosInstance.defaults.headers.common['Authorization'] = accessToken;
+        if (result.headers['App-Reissue-Token'] === 1) {
+          const accessToken = result.headers['App-New-Access-Token'];
+          const refreshToken = result.headers['App-New-Refresh-Token'];
 
-              // TODO: Set cookie
+          axiosInstance.defaults.headers.common['Authorization'] = accessToken;
 
-              return await method.apply(this, args);
-            }
-          } else {
-            throw e;
-          }
+          Cookies.set('access_token', accessToken);
+          Cookies.set('refresh_token', refreshToken);
         }
+
+        return result;
       };
     }
 
