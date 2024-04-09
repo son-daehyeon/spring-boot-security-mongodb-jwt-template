@@ -1,6 +1,7 @@
 package com.github.ioloolo.template.common.security;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,7 @@ public class JwtUtil {
 
 		return JWT.create()
 			.withIssuedAt(Instant.now())
-			.withExpiresAt(Instant.now().plus(accessTokenExpirationsHour, TimeUnit.HOURS.toChronoUnit()))
+			.withExpiresAt(Instant.now().plus(accessTokenExpirationsHour, ChronoUnit.HOURS))
 			.withClaim("username", userPrincipal.getUsername())
 			.sign(algorithm);
 	}
@@ -49,7 +50,7 @@ public class JwtUtil {
 
 		String token = JWT.create()
 				.withIssuedAt(Instant.now())
-				.withExpiresAt(Instant.now().plus(refreshTokenExpirationsHour, TimeUnit.HOURS.toChronoUnit()))
+				.withExpiresAt(Instant.now().plus(refreshTokenExpirationsHour, ChronoUnit.SECONDS))
 				.sign(algorithm);
 
 		redisTemplate.opsForValue().set(token, userPrincipal.getId(), refreshTokenExpirationsHour, TimeUnit.HOURS);
