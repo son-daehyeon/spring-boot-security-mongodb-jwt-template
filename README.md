@@ -75,3 +75,6 @@ API 요청 시 `accessToken`은 `Request Header`의 `Authorization`에 "Bearer (
   }  
   ```  
 - **Response Body:** 정상적으로 회원가입되면 별도의 응답 바디는 없습니다.
+
+## Axios Client
+[프로젝트의 axios.js](https://github.com/son-daehyeon/spring-security-jwt-template/blob/main/axios.js) 파일 참고하세요.
