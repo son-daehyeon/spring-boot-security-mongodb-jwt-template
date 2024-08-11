@@ -1,47 +1,41 @@
 package com.github.ioloolo.template.domain.user.controller;
 
-import org.springframework.http.ResponseEntity;
+import com.github.ioloolo.template.common.validation.ValidationGroups;
+import com.github.ioloolo.template.domain.api.dto.response.ApiResponse;
+import com.github.ioloolo.template.domain.user.dto.request.LoginRequest;
+import com.github.ioloolo.template.domain.user.dto.request.RefreshTokenRequest;
+import com.github.ioloolo.template.domain.user.dto.request.RegisterRequest;
+import com.github.ioloolo.template.domain.user.dto.response.TokenResponse;
+import com.github.ioloolo.template.domain.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.ioloolo.template.domain.user.controller.payload.request.LoginRequest;
-import com.github.ioloolo.template.domain.user.controller.payload.request.RegisterRequest;
-import com.github.ioloolo.template.domain.user.controller.payload.response.TokenResponse;
-import com.github.ioloolo.template.domain.user.service.UserService;
-
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserController {
 
-	private final UserService service;
+	private final UserService userService;
 
-	@PostMapping
-	public ResponseEntity<TokenResponse> login(@Validated @RequestBody LoginRequest loginRequest) {
+	@PostMapping("/login")
+	public ApiResponse<TokenResponse> login(@Validated(ValidationGroups.class) @RequestBody LoginRequest request) {
 
-		String username = loginRequest.getUsername();
-		String password = loginRequest.getPassword();
-
-		TokenResponse.TokenDto tokenDto = service.login(username, password);
-
-		return ResponseEntity.ok(new TokenResponse(tokenDto));
+		return ApiResponse.createSuccess(userService.login(request));
 	}
 
-	@PutMapping
-	public ResponseEntity<Void> register(@Validated @RequestBody RegisterRequest signUpRequest) throws Exception {
+	@PostMapping("/register")
+	public ApiResponse<Void> register(@Validated(ValidationGroups.class) @RequestBody RegisterRequest request) {
 
-		String username = signUpRequest.getUsername();
-		String email = signUpRequest.getEmail();
-		String password = signUpRequest.getPassword();
+		return ApiResponse.createSuccess(userService.register(request));
+	}
 
-		service.register(username, email, password);
+	@PostMapping("/refresh-token")
+	public ApiResponse<TokenResponse> refreshToken(@Validated(ValidationGroups.class) @RequestBody RefreshTokenRequest request) {
 
-		return ResponseEntity.ok().build();
+		return ApiResponse.createSuccess(userService.refreshToken(request));
 	}
 }
