@@ -1,4 +1,4 @@
-package com.github.ioloolo.template.domain.user.repository;
+package com.github.ioloolo.template.domain.auth.repository;
 
 import com.github.ioloolo.template.common.redis.RedisRepository;
 import org.springframework.data.redis.core.RedisTemplate;

@@ -1,6 +1,6 @@
 package com.github.ioloolo.template.common.security.authentication;
 
-import com.github.ioloolo.template.common.exception.AuthenticationFailException;
+import com.github.ioloolo.template.domain.auth.exception.AuthenticationFailException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;

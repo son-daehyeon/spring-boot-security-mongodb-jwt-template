@@ -11,7 +11,7 @@ public interface ValidationGroups {
 
     interface NotEmptyGroup {}
 
-    interface PatternGroup {}
-
     interface LengthGroup {}
+
+    interface PatternGroup {}
 }

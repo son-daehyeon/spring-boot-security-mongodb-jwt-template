@@ -1,15 +1,48 @@
 package com.github.ioloolo.template.domain.user.schema;
 
-import com.github.ioloolo.template.domain.user.constant.Role;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+@Builder
 public record User(
-	@Id
-	String id,
+        @Id
+        String id,
 
-	String email,
+        String email,
+        String password,
 
-	String password,
+        Role role
+) {
+    public enum Role {
+        USER,
+        ADMIN(Role.USER),
+        ;
 
-	Role role
-) {}
+        private final Role[] inheritedRoles;
+
+        Role(Role... inheritedRoles) {
+            this.inheritedRoles = inheritedRoles;
+        }
+
+        public Collection<String> getAuthorization() {
+
+            HashSet<Role> authorization = new HashSet<>();
+
+            collectAuthorization(this, authorization);
+
+            return authorization.stream().map(role -> "ROLE_" + role.name()).toList();
+        }
+
+        private void collectAuthorization(Role role, HashSet<Role> roles) {
+
+            roles.add(role);
+
+            for (Role inheritedRole : role.inheritedRoles) {
+                collectAuthorization(inheritedRole, roles);
+            }
+        }
+    }
+}

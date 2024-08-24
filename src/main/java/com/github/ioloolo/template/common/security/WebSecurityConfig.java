@@ -23,44 +23,44 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-	private final JwtFilter jwtFilter;
+    private final JwtFilter jwtFilter;
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
 
-		return new BCryptPasswordEncoder();
-	}
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public AuthenticationProvider authenticationProvider() {
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
 
         return new UserAuthenticationProvider(passwordEncoder());
-	}
+    }
 
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 
-		return authConfig.getAuthenticationManager();
-	}
+        return authConfig.getAuthenticationManager();
+    }
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		return http
-				.cors(AbstractHttpConfigurer::disable)
-				.csrf(AbstractHttpConfigurer::disable)
-				.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-				.authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider())
 
-				.authorizeHttpRequests(request -> {
-					request.requestMatchers(HttpMethod.POST, "/api/user/login").anonymous();
-					request.requestMatchers(HttpMethod.POST, "/api/user/register").anonymous();
-					request.requestMatchers(HttpMethod.POST, "/api/user/refresh-token").anonymous();
+                .authorizeHttpRequests(request -> {
+                    request.requestMatchers(HttpMethod.POST, "/api/user/login").anonymous();
+                    request.requestMatchers(HttpMethod.POST, "/api/user/register").anonymous();
+                    request.requestMatchers(HttpMethod.POST, "/api/user/refresh-token").permitAll();
 
-					request.anyRequest().authenticated();
-				})
+                    request.anyRequest().authenticated();
+                })
 
-				.build();
-	}
+                .build();
+    }
 }

@@ -3,7 +3,7 @@ package com.github.ioloolo.template.common.security.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.github.ioloolo.template.domain.user.repository.RefreshTokenRepository;
+import com.github.ioloolo.template.domain.auth.repository.RefreshTokenRepository;
 import com.github.ioloolo.template.domain.user.schema.User;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -18,59 +18,60 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-	@Value("${app.security.access-token-expirations-hour}")
-	private long accessTokenExpirationsHour;
+    @Value("${app.security.access-token-expirations-hour}")
+    private long accessTokenExpirationsHour;
 
-	@Value("${app.security.refresh-token-expirations-hour}")
-	private long refreshTokenExpirationsHour;
+    @Value("${app.security.refresh-token-expirations-hour}")
+    private long refreshTokenExpirationsHour;
 
-	private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-	@Value("${app.security.jwt-secret-key}")
-	private String secretKey;
-	private Algorithm algorithm;
+    @Value("${app.security.jwt-secret-key}")
+    private String secretKey;
 
-	@PostConstruct
-	public void init() {
-		algorithm = Algorithm.HMAC256(secretKey);
-	}
+    private Algorithm algorithm;
 
-	public String generateAccessToken(User user) {
+    @PostConstruct
+    public void init() {
+        algorithm = Algorithm.HMAC256(secretKey);
+    }
 
-		return JWT.create()
-				.withIssuedAt(Instant.now())
-				.withExpiresAt(Instant.now().plus(accessTokenExpirationsHour, ChronoUnit.HOURS))
-				.withClaim("id", user.id())
-				.sign(algorithm);
-	}
+    public String generateAccessToken(User user) {
 
-	public String generateRefreshToken(User user) {
+        return JWT.create()
+                .withIssuedAt(Instant.now())
+                .withExpiresAt(Instant.now().plus(accessTokenExpirationsHour, ChronoUnit.HOURS))
+                .withClaim("id", user.id())
+                .sign(algorithm);
+    }
 
-		String token = JWT.create()
-				.withIssuedAt(Instant.now())
-				.withExpiresAt(Instant.now().plus(refreshTokenExpirationsHour, ChronoUnit.HOURS))
-				.sign(algorithm);
+    public String generateRefreshToken(User user) {
 
-		refreshTokenRepository.setTtl(token, user.id(), refreshTokenExpirationsHour, TimeUnit.HOURS);
+        String token = JWT.create()
+                .withIssuedAt(Instant.now())
+                .withExpiresAt(Instant.now().plus(refreshTokenExpirationsHour, ChronoUnit.HOURS))
+                .sign(algorithm);
 
-		return token;
-	}
+        refreshTokenRepository.setTtl(token, user.id(), refreshTokenExpirationsHour, TimeUnit.HOURS);
 
-	public String extractToken(String token) {
+        return token;
+    }
 
-		return JWT.require(algorithm)
-			.build()
-			.verify(token)
-			.getClaim("id")
-			.asString();
-	}
+    public String extractToken(String token) {
 
-	public boolean validateToken(String token) throws TokenExpiredException {
+        return JWT.require(algorithm)
+                .build()
+                .verify(token)
+                .getClaim("id")
+                .asString();
+    }
 
-		if (token == null) return false;
+    public boolean validateToken(String token) throws TokenExpiredException {
 
-		JWT.require(algorithm).build().verify(token);
+        if (token == null) return false;
 
-		return true;
+        JWT.require(algorithm).build().verify(token);
+
+        return true;
     }
 }
