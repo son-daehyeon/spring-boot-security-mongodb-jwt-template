@@ -1,24 +1,36 @@
 package com.github.son_daehyeon.template.domain.user.schema;
 
-import lombok.Builder;
-import org.springframework.data.annotation.Id;
-
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
-@Builder
-public record User(
-        @Id
-        String id,
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-        String email,
-        String password,
+import com.github.son_daehyeon.template.common.database.mongo.BaseSchema;
 
-        Role role
-) {
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class User extends BaseSchema {
+
+    @Indexed(unique = true)
+    String email;
+
+    String password;
+
+    Role role;
+
     public enum Role {
-        USER,
-        ADMIN(Role.USER),
+
+        MEMBER,
+        ADMIN(MEMBER),
         ;
 
         private final Role[] inheritedRoles;
@@ -27,16 +39,16 @@ public record User(
             this.inheritedRoles = inheritedRoles;
         }
 
-        public Collection<String> getAuthorization() {
+        public Collection<SimpleGrantedAuthority> getAuthorization() {
 
-            HashSet<Role> authorization = new HashSet<>();
+            Set<Role> authorization = new HashSet<>();
 
             collectAuthorization(this, authorization);
 
-            return authorization.stream().map(role -> "ROLE_" + role.name()).toList();
+            return authorization.stream().map(role -> "ROLE_" + role.name()).map(SimpleGrantedAuthority::new).toList();
         }
 
-        private void collectAuthorization(Role role, HashSet<Role> roles) {
+        private void collectAuthorization(Role role, Set<Role> roles) {
 
             roles.add(role);
 
@@ -46,3 +58,4 @@ public record User(
         }
     }
 }
+

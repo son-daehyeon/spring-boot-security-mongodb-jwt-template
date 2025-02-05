@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+
 @Data
 public class ApiResponse<T> {
 
@@ -19,13 +21,18 @@ public class ApiResponse<T> {
         this.content = content;
     }
 
-    public static <T> ApiResponse<T> createSuccess(T content) {
+    public static <T> ApiResponse<T> ok(T content) {
 
         return new ApiResponse<>(200, null, content);
     }
 
-    public static ApiResponse<Map<String, String>> createError(ApiException exception) {
+    public static ApiResponse<Map<String, String>> error(ApiException exception) {
 
-        return new ApiResponse<>(exception.getStatus().value(), exception.getMessage(), null);
+        return error(exception.getStatus(), exception.getMessage());
+    }
+
+    public static ApiResponse<Map<String, String>> error(HttpStatus status, String message) {
+
+        return new ApiResponse<>(status.value(), message, null);
     }
 }

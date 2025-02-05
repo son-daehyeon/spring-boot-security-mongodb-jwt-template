@@ -1,5 +1,9 @@
 package com.github.son_daehyeon.template.domain.auth.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.github.son_daehyeon.template.common.security.authentication.UserAuthentication;
 import com.github.son_daehyeon.template.common.security.jwt.JwtUtil;
 import com.github.son_daehyeon.template.domain.auth.dto.request.LoginRequest;
@@ -10,12 +14,12 @@ import com.github.son_daehyeon.template.domain.auth.exception.AlreadyRegisteredE
 import com.github.son_daehyeon.template.domain.auth.exception.AuthenticationFailException;
 import com.github.son_daehyeon.template.domain.auth.exception.InvalidRefreshTokenException;
 import com.github.son_daehyeon.template.domain.auth.repository.RefreshTokenRepository;
+import com.github.son_daehyeon.template.domain.auth.schema.RefreshToken;
+import com.github.son_daehyeon.template.domain.user.dto.response.UserResponse;
 import com.github.son_daehyeon.template.domain.user.repository.UserRepository;
 import com.github.son_daehyeon.template.domain.user.schema.User;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -30,35 +34,31 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest dto) {
 
-        String email = dto.email();
-        String password = dto.password();
+        User user = userRepository.findByEmail(dto.email())
+            .orElseThrow(AuthenticationFailException::new);
 
-        User user = userRepository.findByEmail(email).orElseThrow(AuthenticationFailException::new);
-
-        authenticationManager.authenticate(new UserAuthentication(user, password));
+        UserAuthentication authentication = new UserAuthentication(user, dto.password());
+        authenticationManager.authenticate(authentication);
 
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
         return LoginResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .build();
     }
 
     public Void register(RegisterRequest dto) {
 
-        String email = dto.email();
-        String password = dto.password();
-
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(dto.email())) {
             throw new AlreadyRegisteredEmailException();
         }
 
         User user = User.builder()
-                .email(email)
-                .password(encoder.encode(password))
-                .role(User.Role.USER)
+                .email(dto.email())
+                .password(encoder.encode(dto.password()))
+                .role(User.Role.MEMBER)
                 .build();
 
         userRepository.save(user);
@@ -66,14 +66,12 @@ public class AuthService {
         return null;
     }
 
-    public LoginResponse refreshToken(RefreshTokenRequest request) {
+    public LoginResponse refreshToken(RefreshTokenRequest dto) {
 
-        String refreshToken = request.refreshToken();
+        RefreshToken token = refreshTokenRepository.findByToken(dto.token()).orElseThrow(InvalidRefreshTokenException::new);
+        refreshTokenRepository.delete(token);
 
-        String id = refreshTokenRepository.get(refreshToken).orElseThrow(InvalidRefreshTokenException::new);
-        refreshTokenRepository.delete(refreshToken);
-
-        User user = userRepository.findById(id).orElseThrow(AuthenticationFailException::new);
+        User user = userRepository.findById(token.userId()).orElseThrow(AuthenticationFailException::new);
 
         String accessToken = jwtUtil.generateAccessToken(user);
         String newRefreshToken = jwtUtil.generateRefreshToken(user);
@@ -82,5 +80,12 @@ public class AuthService {
                 .accessToken(accessToken)
                 .refreshToken(newRefreshToken)
                 .build();
+    }
+
+    public UserResponse me(User user) {
+
+        return UserResponse.builder()
+            .user(user)
+            .build();
     }
 }

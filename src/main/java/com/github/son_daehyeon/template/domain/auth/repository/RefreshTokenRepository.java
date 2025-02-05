@@ -1,14 +1,14 @@
 package com.github.son_daehyeon.template.domain.auth.repository;
 
-import com.github.son_daehyeon.template.common.redis.RedisRepository;
-import org.springframework.data.redis.core.RedisTemplate;
+import java.util.Optional;
+
+import org.springframework.data.keyvalue.repository.KeyValueRepository;
 import org.springframework.stereotype.Repository;
 
+import com.github.son_daehyeon.template.domain.auth.schema.RefreshToken;
+
 @Repository
-public class RefreshTokenRepository extends RedisRepository {
+public interface RefreshTokenRepository extends KeyValueRepository<RefreshToken, Long> {
 
-    public RefreshTokenRepository(RedisTemplate<String, String> redisTemplate) {
-
-        super(redisTemplate, "token");
-    }
+    Optional<RefreshToken> findByToken(String token);
 }

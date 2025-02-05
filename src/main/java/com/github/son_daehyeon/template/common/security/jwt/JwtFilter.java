@@ -29,19 +29,20 @@ public class JwtFilter extends OncePerRequestFilter {
     private final UserRepository repository;
 
     @Override
-    protected void doFilterInternal(
-            @Nonnull HttpServletRequest request,
-            @Nonnull HttpServletResponse response,
-            @Nonnull FilterChain filterChain
+    public void doFilterInternal(
+        @Nonnull HttpServletRequest request,
+        @Nonnull HttpServletResponse response,
+        @Nonnull FilterChain filterChain
     ) throws ServletException, IOException {
 
         String accessToken = extractToken(request);
 
         try {
             if (accessToken != null && jwtUtil.validateToken(accessToken)) {
+
                 String id = jwtUtil.extractToken(accessToken);
                 User user = repository.findById(id)
-                        .orElseThrow(AuthenticationFailException::new);
+                    .orElseThrow(AuthenticationFailException::new);
 
                 UserAuthentication authentication = new UserAuthentication(user);
                 authentication.setAuthenticated(true);
@@ -63,15 +64,17 @@ public class JwtFilter extends OncePerRequestFilter {
         String authorization = request.getHeader("Authorization");
 
         return (authorization != null && authorization.startsWith("Bearer "))
-                ? authorization.substring(7)
-                : null;
+            ? authorization.substring(7)
+            : null;
     }
 
     private void handleException(HttpServletResponse response, ApiException e) throws IOException {
-        ApiResponse<?> apiResponse = ApiResponse.createError(e);
-        String apiResponseString = new ObjectMapper().writeValueAsString(apiResponse);
+        ApiResponse<?> apiResponse = ApiResponse.error(e);
 
-        response.getWriter().write(apiResponseString);
+        String content = new ObjectMapper().writeValueAsString(apiResponse);
+
+        response.addHeader("Content-Type", "application/json");
+        response.getWriter().write(content);
         response.getWriter().flush();
     }
 }
