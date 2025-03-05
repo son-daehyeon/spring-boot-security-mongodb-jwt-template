@@ -1,7 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/gradle,macos,intellij+all,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,macos,intellij+all,java
 
-### Env ###
+### Configuration ###
 src/main/resources/application.yaml
 
 ### Intellij+all ###
