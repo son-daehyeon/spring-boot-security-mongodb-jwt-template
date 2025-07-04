@@ -1,0 +1,20 @@
+spring:
+  config:
+    import:
+      - classpath:application.yaml
+  data:
+    mongodb:
+      host: ${MONGO_HOST:localhost}
+      port: ${MONGO_PORT:27017}
+      username: ${MONGO_USERNAME:root}
+      password: ${MONGO_PASSWORD:root}
+      authentication-database: ${MONGO_AUTHENTICATION_DATABASE:admin}
+      database: ${MONGO_DATABASE:test}
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:root}
+
+app:
+  jwt:
+    key: (secret-key)
