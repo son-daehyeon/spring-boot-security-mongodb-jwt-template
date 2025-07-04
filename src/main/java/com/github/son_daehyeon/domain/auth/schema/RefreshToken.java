@@ -1,27 +1,27 @@
 package com.github.son_daehyeon.domain.auth.schema;
 
-import java.util.concurrent.TimeUnit;
-
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
-import lombok.Builder;
+import java.util.concurrent.TimeUnit;
 
+@Data
 @Builder
 @RedisHash(value = "refresh_token")
-public record RefreshToken(
+public class RefreshToken {
 
-	@Id
-	Long id,
+    @Id
+    Long id;
 
-	@Indexed
-	String token,
+    @Indexed
+    String token;
 
-	String userId,
+    String userId;
 
-	@TimeToLive(unit = TimeUnit.HOURS)
-	long ttl
-) {
+    @TimeToLive(unit = TimeUnit.HOURS)
+    long ttl;
 }

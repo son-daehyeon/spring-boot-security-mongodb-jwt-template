@@ -2,14 +2,17 @@ package com.github.son_daehyeon.domain.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public record LoginRequest(
+@Data
+@AllArgsConstructor
+public class LoginRequest {
 
-    @NotBlank
     @Email
-    String email,
+    @NotBlank
+    String email;
 
     @NotBlank
-    String password
-) {
+    String password;
 }

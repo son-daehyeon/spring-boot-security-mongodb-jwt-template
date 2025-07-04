@@ -1,11 +1,10 @@
 package com.github.son_daehyeon.domain.auth.repository;
 
-import java.util.Optional;
-
+import com.github.son_daehyeon.domain.auth.schema.RefreshToken;
 import org.springframework.data.keyvalue.repository.KeyValueRepository;
 import org.springframework.stereotype.Repository;
 
-import com.github.son_daehyeon.domain.auth.schema.RefreshToken;
+import java.util.Optional;
 
 @Repository
 public interface RefreshTokenRedisRepository extends KeyValueRepository<RefreshToken, Long> {

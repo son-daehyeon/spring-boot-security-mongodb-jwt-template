@@ -1,25 +1,21 @@
 package com.github.son_daehyeon.domain.auth.service;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import com.github.son_daehyeon.common.security.authentication.UserAuthentication;
-import com.github.son_daehyeon.common.security.jwt.JwtUtil;
 import com.github.son_daehyeon.domain.auth.dto.request.LoginRequest;
 import com.github.son_daehyeon.domain.auth.dto.request.RefreshTokenRequest;
 import com.github.son_daehyeon.domain.auth.dto.request.RegisterRequest;
-import com.github.son_daehyeon.domain.auth.dto.response.LoginResponse;
-import com.github.son_daehyeon.domain.auth.exception.AlreadyRegisteredEmailException;
-import com.github.son_daehyeon.domain.auth.exception.AuthenticationFailException;
-import com.github.son_daehyeon.domain.auth.exception.InvalidRefreshTokenException;
+import com.github.son_daehyeon.domain.auth.dto.response.TokenResponse;
+import com.github.son_daehyeon.domain.auth.exception.AuthExceptions;
 import com.github.son_daehyeon.domain.auth.repository.RefreshTokenRedisRepository;
 import com.github.son_daehyeon.domain.auth.schema.RefreshToken;
 import com.github.son_daehyeon.domain.user.dto.response.UserResponse;
 import com.github.son_daehyeon.domain.user.repository.UserRepository;
 import com.github.son_daehyeon.domain.user.schema.User;
-
+import com.github.son_daehyeon.global.security.authentication.UserAuthentication;
+import com.github.son_daehyeon.global.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -32,32 +28,29 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse login(LoginRequest dto) {
+    public TokenResponse login(LoginRequest dto) {
 
-        User user = userRepository.findByEmail(dto.email())
-            .orElseThrow(AuthenticationFailException::new);
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(AuthExceptions.AUTHENTICATION_FAILED::toException);
 
-        UserAuthentication authentication = new UserAuthentication(user, dto.password());
+        UserAuthentication authentication = new UserAuthentication(user, dto.getPassword());
         authenticationManager.authenticate(authentication);
 
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        return LoginResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .build();
+        return TokenResponse.of(accessToken, refreshToken);
     }
 
     public Void register(RegisterRequest dto) {
 
-        if (userRepository.existsByEmail(dto.email())) {
-            throw new AlreadyRegisteredEmailException();
-        }
+        userRepository.findByEmail(dto.getEmail()).ifPresent((u) -> {
+            throw AuthExceptions.ALREADY_REGISTERED.toException();
+        });
 
         User user = User.builder()
-                .email(dto.email())
-                .password(encoder.encode(dto.password()))
+                .email(dto.getEmail())
+                .password(encoder.encode(dto.getPassword()))
                 .role(User.Role.MEMBER)
                 .build();
 
@@ -66,26 +59,24 @@ public class AuthService {
         return null;
     }
 
-    public LoginResponse refreshToken(RefreshTokenRequest dto) {
+    public TokenResponse refreshToken(RefreshTokenRequest dto) {
 
-        RefreshToken token = refreshTokenRedisRepository.findByToken(dto.token()).orElseThrow(InvalidRefreshTokenException::new);
+        RefreshToken token = refreshTokenRedisRepository.findByToken(dto.getToken())
+                .orElseThrow(AuthExceptions.INVALID_REFRESH_TOKEN::toException);
+
         refreshTokenRedisRepository.delete(token);
 
-        User user = userRepository.findById(token.userId()).orElseThrow(AuthenticationFailException::new);
+        User user = userRepository.findById(token.getUserId())
+                .orElseThrow(AuthExceptions.AUTHENTICATION_FAILED::toException);
 
         String accessToken = jwtUtil.generateAccessToken(user);
         String newRefreshToken = jwtUtil.generateRefreshToken(user);
 
-        return LoginResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(newRefreshToken)
-                .build();
+        return TokenResponse.of(accessToken, newRefreshToken);
     }
 
     public UserResponse me(User user) {
 
-        return UserResponse.builder()
-            .user(user)
-            .build();
+        return UserResponse.from(user);
     }
 }

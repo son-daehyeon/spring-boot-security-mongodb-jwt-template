@@ -1,0 +1,13 @@
+spring:
+  config:
+    import:
+      - classpath:application-default.yaml
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: off
